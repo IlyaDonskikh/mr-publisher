@@ -4,8 +4,6 @@ import { Channel } from 'amqplib';
 export interface MrPublisherInterface<P, Q> {
   new (params: P): {
     payload: P;
-    publish(): Promise<void>;
-    setChannel(): Promise<void>;
   };
   publish({ payload }: { payload: P }): Promise<void>;
 }
