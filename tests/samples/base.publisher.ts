@@ -12,10 +12,16 @@ enum MessageBrokerQueue {
 export class BasePublisher extends MrPublisher<Payload, MessageBrokerQueue>() {
   queueName: MessageBrokerQueue = MessageBrokerQueue.basePublisher;
 
-  async setChannel() {
-    const rabbitUrl = process.env.RABBITMQ_URL ?? '';
-    const connection = await amqp.connect(rabbitUrl);
-
-    return connection.createChannel();
+  async setupChannel() {
+    return createChannel();
   }
+}
+
+// helpers
+
+async function createChannel() {
+  const rabbitUrl = process.env.RABBITMQ_URL ?? '';
+  const connection = await amqp.connect(rabbitUrl);
+
+  return connection.createChannel();
 }

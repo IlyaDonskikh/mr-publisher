@@ -1,7 +1,7 @@
 {
   "name": "mr-publisher",
-  "version": "0.1.1",
-  "description": "A perfect way to publish your data to rabbitmq.",
+  "version": "0.1.3",
+  "description": "Effortlessly publish your data to RabbitMQ with a clean.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -47,5 +47,8 @@
   "bugs": {
     "url": "https://github.com/IlyaDonskikh/mr-publisher/issues"
   },
-  "homepage": "https://github.com/IlyaDonskikh/mr-publisher#readme"
+  "homepage": "https://github.com/IlyaDonskikh/mr-publisher#readme",
+  "dependencies": {
+    "mr-publisher": "^0.1.1"
+  }
 }

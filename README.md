@@ -1,18 +1,14 @@
 # Mr.UseCase
 
-![Node.js CI Tests](https://github.com/IlyaDonskikh/mr-use-case/actions/workflows/node.js.yml/badge.svg?branch=master)
+![Node.js CI Tests](https://github.com/IlyaDonskikh/mr-publisher/actions/workflows/node.js.yml/badge.svg?branch=master)
 
-The perfect way to wrap your business logic fast and properly.
+Effortlessly publish your data to RabbitMQ with a clean, TypeScript-friendly API.
 
 <img width="200" alt="Mr.UseCase" src="https://user-images.githubusercontent.com/3100222/118412068-9bcf2a80-b6a0-11eb-8977-98c66c165052.png">
 
 ## Introduction
 
-> These use cases orchestrate the flow of data to and from the entities, and direct those entities to use their Critical Business Rules to achieve the goals of the use case.
-
-[📖 Clean Architecture book](http://www.plainionist.net/Clean-Architecture/)
-
-The UseCase layer allows you to achieve significant benefits in the following parts of writing code:
+The MrPublisher layer allows you to achieve significant benefits in the following parts of writing code:
 
 - Make development process clear for all participants
 - Speed up the development of production-ready projects
@@ -26,133 +22,75 @@ So, developers and use cases have to be friends🤝 forever at least for reasons
 Just one step.
 
 ```shell
-npm i mr-use-case
+npm i mr-publisher
 ```
 
 And use it where you need it.
 
 ```typescript
-import { MrUseCase } from 'mr-use-case';
+import { MrPublisher } from 'mr-publisher';
 ```
 
-#### Localization
+#### Setup
 
-As well you have an option to localize errors through error builder customization:
+To get started, simply connect a RabbitMQ channel to your MrPublisher and define your list of possible queues.
 
 ```typescript
-import { MrUseCase } from 'mr-use-case';
-import { ErrorsBuilder } from './errors.builder';
+import { MrPublisher } from 'mr-publisher';
+import { rabbitMQ } from './rabbitMQ';
 
-export function UseCase<T, R>() {
-  return MrUseCase<T, R>({ errorsBuilder: ErrorsBuilder });
+enum MessageBrokerQueue {
+  coreMessageCreated = 'core.message.created',
+  telegramTelegramMessagesCreated = 'telegram.telegramMessage.created',
+}
+
+export function Publisher<Payload extends object>() {
+  return class BasePublisher extends MrPublisher<
+    Payload,
+    MessageBrokerQueue
+  >() {
+    async setupChannel() {
+      return rabbitMQ.getChannel();
+    }
+  };
 }
 ```
-
-Read more about it on [🥞 Mr.Error page](https://github.com/IlyaDonskikh/mr-error).
 
 ## Overview
 
-This section contains a simple use case that shows us an example of `Mr.UseCase` implementation. Let's take a quick look at the following piece of code:
+This section contains a simple case that shows us an example of `Mr.Publisher` implementation. Let's take a quick look at the following piece of code:
 
 ```typescript
-import { MrUseCase } from 'mr-use-case';
-import { User } from '$path';
-import { isEmail } from '$path';
+import { MessageBrokerQueue } from '../utils/mr.publisher';
 
-interface Request {
-  email: string;
+interface Payload {
+  message: {
+    uuid: string;
+  };
 }
 
-interface Response {
-  user: User;
-}
-
-export class UserCreateCase extends MrUseCase<Request, Response>() {
-  private position?: UserPosition;
-  private positionValidated: UserPosition;
-
-  // process
-
-  async process() {
-    await this.assignVariables();
-
-    await this.validate(); // calls checks()
-
-    const user = await User.create({
-      email: this.request.email,
-      positionId: this.positionValidated.id,
-    });
-
-    return { user };
-  }
-
-  // private
-
-  protected async checks() {
-    if (!this.request.email) {
-      this.errors.add('email', 'presence');
-    }
-
-    if (!isEmail(this.request.email)) {
-      this.errors.add('email', 'format');
-    }
-
-    if (!this.position) {
-      this.errors.add('email', 'positionFind');
-
-      return;
-    }
-
-    this.positionValidated = this.position;
-  }
-
-  private async assignVariables() {
-    this.position = await findAvailablePosition();
-  }
-
-  private async findAvailablePosition() {
-    // ...
-  }
+export class SampleMessageCreatedPublisher extends Publisher<Payload>() {
+  queueName = MessageBrokerQueue.coreMessageCreated;
 }
 ```
 
-As you can see, the code is split into four parts:
+Now you can safely publish your data from anywhere in your code:
 
-1. Assigning a variable area
-2. Validation
-3. Execution
-4. Packing response
+```typescript
+const message = { uuid: '94e95f6f-b49f-482f-96d5-410b21edf9c0' };
 
-Keep in mind that one use case must fullfil only one business purpose and give a straight answer about the success of the operation after the call.
+await SampleMessageCreatedPublisher.publish({
+  payload: {
+    message: {
+      uuid: message.uuid,
+    },
+  },
+});
+```
+
+As you can see, the code is pretty simple and easy to user.
 
 Now let's see how we may use it in the positive scenario:
-
-```typescript
-const email = 'example@example.com';
-const { user } = await UserCreateCase.call({ email });
-
-return user; // => created user
-```
-
-However, what happens if the passed value is not an email? Let's change our code and see.
-
-```typescript
-const email = 'wrongemail';
-
-try {
-  const { user } = await UserCreateCase.call({ email });
-} catch (err) {
-  if (err instanceof MrError) {
-    debug(err.errors.messages());
-
-    return;
-  }
-
-  throw err;
-}
-```
-
-In this scenario our use case throws an exception containing all errors that were caught by the validation process. You may read more about the errors format at [🥞 Mr.Error page](https://github.com/IlyaDonskikh/mr-error).
 
 Let's make a conclusion.
 
@@ -160,6 +98,6 @@ Let's make a conclusion.
 
 ## Conclusion
 
-The use cases make your work much simpler, more structured and efficient. And `Mr.UseCase` pleasantly provides an interface to enjoy these advantages with no headache.
+Using publishers makes your workflow simpler, more organized, and efficient. `Mr.Publisher` offers an intuitive interface so you can enjoy these benefits without any hassle.
 
 Give it a try!
