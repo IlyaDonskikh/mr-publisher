@@ -45,15 +45,46 @@ enum MessageBrokerQueue {
 }
 
 export function Publisher<Payload extends object>() {
-  return class BasePublisher extends MrPublisher<
-    Payload,
-    MessageBrokerQueue
-  >() {
+  return class Publisher extends MrPublisher<Payload, MessageBrokerQueue>() {
     async setupChannel() {
       return rabbitMQ.getChannel();
     }
   };
 }
+```
+
+You can configure RabbitMQ however you prefer for use with MrPublisher. Here is an example of a working setup:
+
+```typescript
+import amqp, { Channel, ChannelModel } from 'amqplib';
+
+let connection: ChannelModel;
+let channel: Channel;
+
+async function getConnection(): Promise<amqp.ChannelModel> {
+  if (!connection) {
+    const rabbitUrl = process.env.RABBITMQ_URL ?? '';
+    connection = await amqp.connect(rabbitUrl);
+  }
+
+  return connection;
+}
+
+async function getChannel(): Promise<Channel> {
+  if (!channel) {
+    const conn = await getConnection();
+    channel = await conn.createChannel();
+  }
+
+  return channel;
+}
+
+const rabbitMQ = {
+  getConnection,
+  getChannel,
+};
+
+export { rabbitMQ };
 ```
 
 ## Overview
