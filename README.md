@@ -56,7 +56,7 @@ export function Publisher<Payload extends object>() {
 You can configure RabbitMQ however you prefer for use with MrPublisher.
 
 <details>
-<summary>Here is an example of a working setup</summary>
+<summary>Here is an example of a working setup.</summary>
 
 ```typescript
 import amqp, { Channel, ChannelModel } from 'amqplib';
