@@ -25,8 +25,8 @@ export function MrPublisher<P extends object, Q extends string>() {
     }
 
     async publish() {
-      await this.attachChannel();
       this.validate();
+      await this.attachChannel();
 
       await this.channel.assertQueue(this.queueName, { durable: true });
 
@@ -36,18 +36,24 @@ export function MrPublisher<P extends object, Q extends string>() {
       );
     }
 
-    validate() {
-      if (!this.queueName) {
-        throw new Error('Queue name is required');
-      }
-    }
-
     async attachChannel() {
       this.channel = await this.setupChannel();
     }
 
+    validate() {
+      this.validateQueueName();
+    }
+
+    validateQueueName() {
+      if (this.queueName) return;
+
+      throw new Error(
+        '[MrPublisher][validateQueueName] Queue name is required',
+      );
+    }
+
     async setupChannel(): Promise<Channel> {
-      throw new Error('[Publisher][setChannel] Method not implemented.');
+      throw new Error('[MrPublisher][setupChannel] Method not implemented');
     }
   };
 }
