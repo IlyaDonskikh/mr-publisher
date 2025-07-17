@@ -23,6 +23,7 @@
   "author": "Ilia Donskikh",
   "license": "ISC",
   "devDependencies": {
+    "@types/amqplib": "^0.10.7",
     "@types/jest": "^27.4.0",
     "@types/node": "^17.0.8",
     "del-cli": "^6.0.0",

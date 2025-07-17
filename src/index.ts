@@ -1,79 +1,51 @@
-import { MrError } from 'mr-error';
-
-type ProcessReturn<R> = R extends object ? R : void;
+import { Channel } from 'amqplib';
 
 // have to define interface because declaration option is true
-export interface MrUseCaseInterface<T, R> {
-  new (params: T): {
-    request: T;
-    errors: MrError;
-    process(): Promise<ProcessReturn<R>>;
-    validate(): Promise<void>;
+export interface MrPublisherInterface<P, Q> {
+  new (params: P): {
+    payload: P;
+    publish(): Promise<void>;
+    setChannel(): Promise<void>;
   };
-  call(
-    ...params: T extends object ? [T] : [undefined?]
-  ): Promise<ProcessReturn<R>>;
+  publish({ payload }: { payload: P }): Promise<void>;
 }
 
-export function MrUseCase<
-  T extends object | null = null,
-  R extends object | null = null,
->(
-  { errorsBuilder }: { errorsBuilder: typeof MrError } = {
-    errorsBuilder: MrError,
-  },
-): MrUseCaseInterface<T, R> {
+export function MrPublisher<P extends object, Q extends string>() {
   return class BaseUseCase {
-    request: T;
-    errors: MrError;
+    payload: P;
+    channel: Channel;
+    queueName: Q;
 
-    constructor(params: T) {
-      this.request = params;
+    constructor({ payload }: { payload: P }) {
+      this.payload = payload;
     }
 
-    static call(params: T = null as T) {
-      const response = new this(params).call();
-
-      return response;
+    static async publish({ payload }: { payload: P }) {
+      return new this({ payload }).publish();
     }
 
     // private
 
-    // have to find out the way keep the function protected with declaration: true option
-    async validate() {
-      await this.checks();
+    async publish() {
+      await this.setChannel();
+      this.validate();
 
-      if (!this.isValid()) {
-        throw this.errors;
+      await this.channel.assertQueue(this.queueName, { durable: true });
+
+      this.channel.sendToQueue(
+        this.queueName,
+        Buffer.from(JSON.stringify(this.payload)),
+      );
+    }
+
+    validate() {
+      if (!this.queueName) {
+        throw new Error('Queue name is required');
       }
     }
 
-    async process(): Promise<ProcessReturn<R>> {
-      return undefined as ProcessReturn<R>;
+    async setChannel() {
+      throw new Error('[Publisher][setChannel] Method not implemented.');
     }
-
-    private async call() {
-      this.errors = new errorsBuilder({
-        localePath: this.buildLocalePath(),
-      });
-
-      const response = await this.process();
-
-      return response;
-    }
-
-    private buildLocalePath() {
-      const className = this.constructor.name;
-      const formattedClassName =
-        className[0].toLowerCase() + className.slice(1);
-
-      return `useCases.${formattedClassName}`;
-    }
-
-    private isValid() {
-      return Object.keys(this.errors.errors).length === 0;
-    }
-
-    protected async checks() {}
   };
 }
