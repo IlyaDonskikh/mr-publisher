@@ -90,7 +90,7 @@ const rabbitMQ = {
 export { rabbitMQ };
 ```
 
-</detail>
+</details>
 
 ## Overview
 
