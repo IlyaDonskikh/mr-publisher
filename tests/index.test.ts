@@ -1,54 +1,43 @@
-import { MrUseCase } from '../src';
-import { IntegerSquareCase } from './samples/base.publisher';
-import { NoParamsRunCase } from './samples/noParamsRun.case';
+import { BasePublisher } from './samples/base.publisher';
+import { faker } from '@faker-js/faker';
+import amqp from 'amqplib';
 
-describe('MrUseCase', () => {
-  test('return undefined', async () => {
-    const value = await MrUseCase().call();
+// Mock amqplib
+jest.mock('amqplib', () => ({
+  __esModule: true,
+  default: {
+    connect: jest.fn(),
+  },
+}));
 
-    expect(value).toBeUndefined();
-  });
+describe('BasePublisher', () => {
+  describe('publish', () => {
+    test('publish', async () => {
+      const text = faker.lorem.word();
+      const payload = { text };
+      const mockChannel = {
+        assertQueue: jest.fn().mockResolvedValue(undefined),
+        sendToQueue: jest.fn(),
+      };
 
-  describe('IntegerSquareCase', () => {
-    test('square it', async () => {
-      const value = 3;
-      const { valueSquared } = await IntegerSquareCase.call({ value });
+      const mockConnection = {
+        createChannel: jest.fn().mockResolvedValue(mockChannel),
+      };
 
-      expect(valueSquared).toEqual(value * value);
-    });
+      (amqp.connect as jest.Mock).mockResolvedValue(mockConnection);
 
-    describe('when value is undefined', () => {
-      it('reject with value presence error', async () => {
-        const value = undefined;
+      await BasePublisher.publish({ payload });
 
-        const casePromise = IntegerSquareCase.call({ value });
-
-        await expect(casePromise).rejects.toMatchObject({
-          errors: { value: ['presence'] },
-        });
+      // Verify the mocks were called correctly
+      expect(amqp.connect).toHaveBeenCalled();
+      expect(mockConnection.createChannel).toHaveBeenCalled();
+      expect(mockChannel.assertQueue).toHaveBeenCalledWith('base.publisher', {
+        durable: true,
       });
-    });
-
-    describe('when value is not integer', () => {
-      it('reject with value format error', async () => {
-        const value = 3.2;
-
-        const casePromise = IntegerSquareCase.call({ value });
-
-        await expect(casePromise).rejects.toMatchObject({
-          errors: { value: ['format'] },
-        });
-      });
-    });
-  });
-
-  describe('NoParamsRunCase', () => {
-    describe('when nothing passed', () => {
-      it('done with no response', async () => {
-        const useCase = await NoParamsRunCase.call();
-
-        expect(useCase).toBeUndefined();
-      });
+      expect(mockChannel.sendToQueue).toHaveBeenCalledWith(
+        'base.publisher',
+        Buffer.from(JSON.stringify(payload)),
+      );
     });
   });
 });

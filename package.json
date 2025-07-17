@@ -23,6 +23,8 @@
   "author": "Ilia Donskikh",
   "license": "ISC",
   "devDependencies": {
+    "@faker-js/faker": "^9.9.0",
+    "@jest/globals": "^30.0.4",
     "@types/amqplib": "^0.10.7",
     "@types/jest": "^27.4.0",
     "@types/node": "^17.0.8",
@@ -30,6 +32,7 @@
     "del-cli": "^6.0.0",
     "dot-only-hunter": "^1.0.3",
     "jest": "^30.0.4",
+    "jest-util": "^30.0.2",
     "ts-jest": "^29.4.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
