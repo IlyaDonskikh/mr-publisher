@@ -1,5 +1,5 @@
 import { MrUseCase } from '../src';
-import { IntegerSquareCase } from './samples/integerSquare.case';
+import { IntegerSquareCase } from './samples/base.publisher';
 import { NoParamsRunCase } from './samples/noParamsRun.case';
 
 describe('MrUseCase', () => {

@@ -4,12 +4,13 @@ import { Channel } from 'amqplib';
 export interface MrPublisherInterface<P, Q> {
   new (params: P): {
     payload: P;
+    queueName: Q;
   };
   publish({ payload }: { payload: P }): Promise<void>;
 }
 
 export function MrPublisher<P extends object, Q extends string>() {
-  return class BaseUseCase {
+  return class BasePublisher {
     payload: P;
     channel: Channel;
     queueName: Q;
@@ -21,8 +22,6 @@ export function MrPublisher<P extends object, Q extends string>() {
     static async publish({ payload }: { payload: P }) {
       return new this({ payload }).publish();
     }
-
-    // private
 
     async publish() {
       await this.setChannel();
