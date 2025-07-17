@@ -5,6 +5,7 @@ export interface MrPublisherInterface<P, Q> {
   new (params: P): {
     payload: P;
     queueName: Q;
+    setChannel(): Promise<Channel>;
   };
   publish({ payload }: { payload: P }): Promise<void>;
 }
@@ -24,7 +25,7 @@ export function MrPublisher<P extends object, Q extends string>() {
     }
 
     async publish() {
-      await this.setChannel();
+      await this.attachChannel();
       this.validate();
 
       await this.channel.assertQueue(this.queueName, { durable: true });
@@ -41,7 +42,11 @@ export function MrPublisher<P extends object, Q extends string>() {
       }
     }
 
-    async setChannel() {
+    async attachChannel() {
+      this.channel = await this.setChannel();
+    }
+
+    async setChannel(): Promise<Channel> {
       throw new Error('[Publisher][setChannel] Method not implemented.');
     }
   };

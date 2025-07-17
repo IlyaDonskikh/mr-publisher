@@ -16,6 +16,6 @@ export class BasePublisher extends MrPublisher<Payload, MessageBrokerQueue>() {
     const rabbitUrl = process.env.RABBITMQ_URL ?? '';
     const connection = await amqp.connect(rabbitUrl);
 
-    this.channel = await connection.createChannel();
+    return connection.createChannel();
   }
 }
