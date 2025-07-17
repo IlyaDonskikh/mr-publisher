@@ -1,10 +1,10 @@
-# Mr.UseCase
+# Mr.Publisher
 
 ![Node.js CI Tests](https://github.com/IlyaDonskikh/mr-publisher/actions/workflows/node.js.yml/badge.svg?branch=master)
 
 Effortlessly publish your data to RabbitMQ with a clean, TypeScript-friendly API.
 
-<img width="200" alt="Mr.UseCase" src="https://user-images.githubusercontent.com/3100222/118412068-9bcf2a80-b6a0-11eb-8977-98c66c165052.png">
+<img width="200" alt="Mr.Publisher" src="https://user-images.githubusercontent.com/3100222/118412068-9bcf2a80-b6a0-11eb-8977-98c66c165052.png">
 
 ## Introduction
 
@@ -15,7 +15,7 @@ The MrPublisher layer allows you to achieve significant benefits in the followin
 - Avoid complexity
 - Reduce coupling
 
-So, developers and use cases have to be friends🤝 forever at least for reasons outlined above.
+So, developers and Mr. Publisher have to be friends🤝 forever at least for reasons outlined above.
 
 ## Installation
 
