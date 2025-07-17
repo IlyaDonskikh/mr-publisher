@@ -1,6 +1,6 @@
 # Mr.Publisher
 
-![Node.js CI Tests](https://github.com/IlyaDonskikh/mr-publisher/actions/workflows/node.js.yml/badge.svg?branch=master)
+![Node.js CI Tests](https://github.com/IlyaDonskikh/mr-publisher/actions/workflows/node.js.yml/badge.svg?branch=main)
 
 Effortlessly publish your data to RabbitMQ with a clean, TypeScript-friendly API.
 
